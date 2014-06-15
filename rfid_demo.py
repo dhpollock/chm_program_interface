@@ -12,6 +12,7 @@
 import serial;
 import time;
 from multiprocessing import Process, Queue
+import threading
 import random
 
 class RFIDUnit:
@@ -131,6 +132,8 @@ class RFIDUnit:
 ##        time.sleep(.05)
 ##        self.ser.close()
 
+    def readAllThreaded(self, q):
+        threading.Thread(target = self.readAll, args = (q,)).start()
 
     def readAll(self, q):
 ##        self.readTagID(1)
@@ -298,8 +301,11 @@ class TangibleBoard:
     def readTags(self,num):
         i = 0
         while(i<num):
-            self.unitOne.readAll(self.tag1)
-            self.unitTwo.readAll(self.tag2)
+##            self.unitOne.readAll(self.tag1)
+##            self.unitTwo.readAll(self.tag2)
+
+            self.unitOne.readAllThreaded(self.tag1)
+            self.unitTwo.readAllThreaded(self.tag2)
 
             print(self.tag1.get() + self.tag2.get())
             print("\n")
