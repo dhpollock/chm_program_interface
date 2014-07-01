@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+ #-------------------------------------------------------------------------------
 # Name:        module1
 # Purpose:
 #
@@ -34,7 +34,8 @@ class RFIDUnit:
             self.ser.flushOutput()
 
             if(self.ping() != 0):
-                self.reconnect()
+                print("Bad Serial. Connect try reconnect")
+                #self.reconnect()
 
         except serial.SerialException, e:
             print("Error:Serial Error-> ")
@@ -42,7 +43,7 @@ class RFIDUnit:
             print(comPort)
 
         if(self.ser.isOpen()):
-            print("Connected to Port %d!" % comPort)
+            print("Connected to Port %s!" % comPort)
         else:
             print("Not Connected")
 
@@ -67,7 +68,7 @@ class RFIDUnit:
             self.reset()
 
     def ping(self):
-        self.ser.write("\x30")
+        self.ser.write("\x30".encode("utf-8"))
         s = (self.ser.read(self.ser.inWaiting()))
         time.sleep(.05)
         while(len(s) > 0):
@@ -77,8 +78,9 @@ class RFIDUnit:
         ping = "\x30\x31\x30\x38\x30\x30\x30\x33\x30\x34\x46\x46\x30\x30\x30\x30"
         self.ser.flushInput()
         self.ser.flushOutput()
+        s = (self.ser.read(self.ser.inWaiting()))
         try:
-            self.ser.write(ping)      # write a string
+            self.ser.write(ping.encode("utf-8"))      # write a string
         except serial.SerialException, e:
             print("Error: Could not send ping:")
             print(e)
@@ -106,7 +108,7 @@ class RFIDUnit:
         self.ser.flushInput()
         self.ser.flushOutput()
         try:
-            self.ser.write(beep)      # write a string
+            self.ser.write(beep.encode("utf-8"))      # write a string
         except serial.SerialException, e:
             print("Error: Could not send beep:")
             print(e)
@@ -124,7 +126,7 @@ class RFIDUnit:
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.ser.write(failbeep)      # write a string
+        self.ser.write(failbeep.encode("utf-8"))      # write a string
         time.sleep(.05)
         s = (self.ser.read(self.ser.inWaiting()))
 ##        print(":".join("{:02x}".format(ord(c)) for c in s))
@@ -156,13 +158,42 @@ class RFIDUnit:
         readData = "\x30\x31\x30\x42\x30\x30\x30\x33\x30\x34\x31\x34\x32\x34\x30\x31\x30\x30\x30\x30\x30\x30"
 
         self.activateRelay(tagIndex)
-
+        time.sleep(.05)
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        self.ser.write(readData)
+        self.ser.write(readData.encode("utf-8"))
         time.sleep(.05)
+        s = ""
+        # end =False
+        # self.ser.timeout = 1
+        # print("reading:  ")
+        # while(self.ser.inWaiting() > 0):
+        #     self.temp = ""
+        #     if(self.ser.inWaiting() > 0):
+        #         try:
+        #             self.temp = self.ser.read(self.ser.inWaiting())
+        #         except serial.SerialTimeoutException, e:
+        #             end = True
+        #             print s
+        #             break
+            
+        #     s += self.temp
+
+        #     if "]" in s:
+        #         print("found a ]")
+        #         end = True
+        #         break
+
+        #     time.sleep(2)
+        #     print("looping")
+
+
+        # print(s)
+        # print("end")
+        # self.ser.timeout = 1
         s =self.ser.read(self.ser.inWaiting())
+        print(s)
 ##        print(s)
         split = s.split('\r\n')
 
@@ -194,6 +225,8 @@ class RFIDUnit:
         self.ser.flushInput()
         self.ser.flushOutput()
         if(error):
+            self.reconnect()
+            time.sleep(.05)
             self.reset()
             time.sleep(.05)
             return self.readTagID(tagIndex)
@@ -226,11 +259,16 @@ class RFIDUnit:
 
         self.ser.flushInput()
         self.ser.flushOutput()
-        self.ser.write(finalMsg)
+        self.ser.write(finalMsg.encode("utf-8"))
 
         time.sleep(.05)
         s =self.ser.read(self.ser.inWaiting())
 
+    def reset(self):
+        msg = "\x30\x31\x30\x41\x30\x30\x30\x33\x30\x34\x31\x30\x30\x30\x30\x31\x30\x30\x30\x30"
+        self.ser.write(msg.encode("utf-8"))
+        time.sleep(.05)
+        self.ser.read(self.ser.inWaiting())
 
 
     def SendRegwrtreq(self,mode):
@@ -245,20 +283,24 @@ class RFIDUnit:
 
         finalMsg = msg1+msg2+msg3
 
-        self.ser.write(finalMsg)
-
-    def reset(self):
-        msg = "\x30\x31\x30\x41\x30\x30\x30\x33\x30\x34\x31\x30\x30\x30\x30\x31\x30\x30\x30\x30"
-        self.ser.write(msg)
+        self.ser.write(finalMsg.encode("utf-8"))
+        time.sleep(.05)
+        self.ser.read(self.ser.inWaiting())
 
 
     def SendAgcToggle(self):
         msg = "\x30\x31\x30\x39\x30\x30\x30\x33\x30\x34\x46\x30\x30\x30\x30\x30\x30\x30"
-        self.ser.write(msg)
+        self.ser.write(msg.encode("utf-8"))
+        time.sleep(.05)
+        self.ser.read(self.ser.inWaiting())
+
 
     def SendAmPmToggle(self):
         msg = "\x30\x31\x30\x39\x30\x30\x30\x33\x30\x34\x46\x31\x46\x46\x30\x30\x30\x30"
-        self.ser.write(msg)
+        self.ser.write(msg.encode("utf-8"))
+        time.sleep(.05)
+        self.ser.read(self.ser.inWaiting())
+
 
     def close(self):
         try:
@@ -352,8 +394,8 @@ class TangibleBoard:
     def readBlocks(self,num):
         i = 0
         while(i<num):
-            self.unitOne.readAll(self.tag1)
-            self.unitTwo.readAll(self.tag2)
+            self.unitOne.readAllThreaded(self.tag1)
+            self.unitTwo.readAllThreaded(self.tag2)
 
             tags = self.tag1.get() + self.tag2.get()
 
@@ -398,7 +440,7 @@ def main():
         command = raw_input("Command: ")
 
         if(command == 'connect'):
-            myBoard = TangibleBoard(6, 10, -1)
+            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-3",-1)
 
         elif(command == 'reconnect'):
             try:
