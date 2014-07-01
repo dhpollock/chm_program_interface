@@ -324,21 +324,34 @@ class TangibleBoard:
 
         self.blockTable = {}
 
+        self.units = []
+
         self.loadBlockTable(self.blockTableFile, self.blockTable)
 
         self.tag1 = Queue()
         self.tag2 = Queue()
-        self.unitOne = RFIDUnit(unitOneComPort,4)
-        self.unitTwo = RFIDUnit(unitTwoComPort,4)
-##        if(unitThreeComPort != -1):
-##            self.unitThree = RFIDUnit(unitThreeComPort)
+        self.tag3 = Queue()
+
+        self.myQueues = []
+
+        if(unitOneComPort != -1):
+            self.unitOne = RFIDUnit(unitOneComPort,4)
+            self.units.append(self.unitOne)
+            self.myQueues.append(self.tag1)
+        if(unitTwoComPort != -1):
+            self.unitTwo = RFIDUnit(unitTwoComPort,4)
+            self.units.append(self.unitTwo)
+            self.myQueues.append(self.tag2)
+        if(unitThreeComPort != -1):
+            self.unitThree = RFIDUnit(unitThreeComPort)
+            self.units.append(self.unitThree)
+            self.myQueues.append(self.tag3)
 
 
     def boardBeep(self):
-        self.unitOne.beep()
-        time.sleep(.5)
-        self.unitTwo.beep()
-
+        for unit in self.units:
+            unit.beep()
+            time.sleep(.5)
 
     def readTags(self,num):
         i = 0
@@ -346,22 +359,26 @@ class TangibleBoard:
 ##            self.unitOne.readAll(self.tag1)
 ##            self.unitTwo.readAll(self.tag2)
 
-            self.unitOne.readAllThreaded(self.tag1)
-            self.unitTwo.readAllThreaded(self.tag2)
+            for i in range(len(self.units)):
+                self.units[i].readAllThreaded(self.myQueues[i])
 
-            print(self.tag1.get() + self.tag2.get())
+            
+            tempTags = []
+            for queue in self.myQueues:
+                tempTags += queue.get()
+            print(tempTags)
             print("\n")
             i = i+1
 
 
 
     def close(self):
-        self.unitOne.close()
-        self.unitTwo.close()
+        for unit in self.units:
+            unit.close()
 
     def reconnect(self):
-        self.unitOne.reconnect()
-        self.unitTwo.reconnect()
+        for unit in self.units:
+            unit.reconnect()
 
 
     def addBlock(self):
@@ -394,10 +411,12 @@ class TangibleBoard:
     def readBlocks(self,num):
         i = 0
         while(i<num):
-            self.unitOne.readAllThreaded(self.tag1)
-            self.unitTwo.readAllThreaded(self.tag2)
+            for i in range(len(self.units)):
+                self.units[i].readAllThreaded(self.myQueues[i])
 
-            tags = self.tag1.get() + self.tag2.get()
+            tags = []
+            for queue in self.myQueues:
+                tags += queue.get()
 
             blocks =[]
             j = 0
