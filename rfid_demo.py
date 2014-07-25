@@ -158,7 +158,6 @@ class RFIDUnit:
         readData = "\x30\x31\x30\x42\x30\x30\x30\x33\x30\x34\x31\x34\x32\x34\x30\x31\x30\x30\x30\x30\x30\x30"
 
         self.activateRelay(tagIndex)
-        time.sleep(.05)
         self.ser.flushInput()
         self.ser.flushOutput()
 
@@ -221,7 +220,6 @@ class RFIDUnit:
 
 ##        if(error):
 ##            return "ReadError"
-        time.sleep(.07)
         self.ser.flushInput()
         self.ser.flushOutput()
         if(error):
@@ -459,7 +457,7 @@ def main():
         command = raw_input("Command: ")
 
         if(command == 'connect'):
-            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-3",-1)
+            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-4",-1)
 
         elif(command == 'reconnect'):
             try:
