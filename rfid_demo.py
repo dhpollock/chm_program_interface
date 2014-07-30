@@ -14,6 +14,14 @@ import time;
 from multiprocessing import Process, Queue
 import threading
 import random
+from wsgiref.simple_server import make_server
+from ws4py.websocket import EchoWebSocket
+from ws4py.server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
+from ws4py.server.wsgiutils import WebSocketWSGIApplication
+from ws4py.websocket import WebSocket
+
+
+globalBlocks = ['test','this']
 
 class RFIDUnit:
 
@@ -333,15 +341,15 @@ class TangibleBoard:
         self.myQueues = []
 
         if(unitOneComPort != -1):
-            self.unitOne = RFIDUnit(unitOneComPort,4)
+            self.unitOne = RFIDUnit(unitOneComPort,8)
             self.units.append(self.unitOne)
             self.myQueues.append(self.tag1)
         if(unitTwoComPort != -1):
-            self.unitTwo = RFIDUnit(unitTwoComPort,4)
+            self.unitTwo = RFIDUnit(unitTwoComPort,8)
             self.units.append(self.unitTwo)
             self.myQueues.append(self.tag2)
         if(unitThreeComPort != -1):
-            self.unitThree = RFIDUnit(unitThreeComPort)
+            self.unitThree = RFIDUnit(unitThreeComPort,8)
             self.units.append(self.unitThree)
             self.myQueues.append(self.tag3)
 
@@ -430,6 +438,8 @@ class TangibleBoard:
                 j = j+1
 
             print(blocks)
+            global globalBlocks
+            globalBlocks = blocks
             i = i+1
 
 
@@ -450,14 +460,37 @@ class TangibleBoard:
             entry = line.split(',')
             myTable[entry[0]] = entry[1]
 
+
+
+class MyHandler(WebSocket):
+
+    def received_message(self, message):
+        if(message.data == "hello?"):
+
+            temp  = str(globalBlocks).strip('[').strip(']')
+            temp2 = temp.replace("'", '')
+            self.send(temp2, message.is_binary)
+            
+        else:
+            self.send(message.data, message.is_binary)
+
 def main():
+    server = make_server('', 9018, server_class=WSGIServer,
+            handler_class=WebSocketWSGIRequestHandler,
+            app=WebSocketWSGIApplication(handler_cls=MyHandler))
+    
+
+    serverThread = threading.Thread(target = startmyServer, args = (server,)).start()
+
+    print("Type 'help' for a list of commands.")
 
     myBoard = None;
     while(True):
         command = raw_input("Command: ")
 
         if(command == 'connect'):
-            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-4",-1)
+            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", -1,-1)
+
 
         elif(command == 'reconnect'):
             try:
@@ -492,20 +525,43 @@ def main():
             except:
                 print("Error, try connecting to board first")
 
+        elif(command == 'send'):
+            server.get_app.send("helloworld" + '/n')
+            print('sent msg')
+
+        elif(command == 'help'):
+            print("Here are a following list of commands:")
+            print("'connect' -- this connects to the active boards declared in the program")
+            print("'reconnect' -- attempts to reconnect to the boards in case of errors")
+            print("'beep' -- tells the active boards to produce an audible beep")
+            print("'read' -- reads the current tags on the active boards")
+            print("'read50' -- executes the read command 50 times in a row")
+            print("'add block' -- writes the selected type of the current block at the first slot on the first board to the list of dictionary of blocks")
+            print("'read blocks' -- reads current tags and returns their block type")
+            print("'send' -- this 'read blocks' and sends the string via the websocket")
+            print("'exit' -- exits the program, killing all processes")
+
 
         elif(command == 'exit'):
             try:
                 myBoard.close()
+                server.shutdown()
+                serverThread.stop()
                 break
             except:
                 print("Error, try connecting to board first")
                 break
 
 
+def startmyServer(server):
+
+    server.initialize_websockets_manager()
+    server.serve_forever()
 
 
 if __name__ == '__main__':
 
+    # threading.Thread(target = main, args = (server,)).start()
     main()
 
 
