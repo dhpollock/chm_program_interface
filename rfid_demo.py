@@ -23,6 +23,8 @@ from ws4py.websocket import WebSocket
 
 globalBlocks = ['test','this']
 
+
+
 class RFIDUnit:
 
 
@@ -408,7 +410,7 @@ class TangibleBoard:
             print("-- repeat")
             print("-- end repeat")
             selection = raw_input("Type Selection for Block %s" % tag)
-            if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'end repeat'):
+            if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'repeatForever' or selection == 'end repeat'):
                 self.blockTable[tag] = selection
                 self.writeBlockTable()
             else:
@@ -460,12 +462,17 @@ class TangibleBoard:
             entry = line.split(',')
             myTable[entry[0]] = entry[1]
 
+def tempf(num):
+    return
 
+readFunction = tempf
 
 class MyHandler(WebSocket):
 
     def received_message(self, message):
         if(message.data == "hello?"):
+
+            readFunction(1)
 
             temp  = str(globalBlocks).strip('[').strip(']')
             temp2 = temp.replace("'", '')
@@ -475,7 +482,7 @@ class MyHandler(WebSocket):
             self.send(message.data, message.is_binary)
 
 def main():
-    server = make_server('', 9018, server_class=WSGIServer,
+    server = make_server('', 9019, server_class=WSGIServer,
             handler_class=WebSocketWSGIRequestHandler,
             app=WebSocketWSGIApplication(handler_cls=MyHandler))
     
@@ -489,8 +496,10 @@ def main():
         command = raw_input("Command: ")
 
         if(command == 'connect'):
-            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", -1,-1)
-
+            
+            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-7",-1)
+            global readFunction
+            readFunction = myBoard.readBlocks
 
         elif(command == 'reconnect'):
             try:
