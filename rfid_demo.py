@@ -410,7 +410,7 @@ class TangibleBoard:
             print("-- repeat")
             print("-- end repeat")
             selection = raw_input("Type Selection for Block %s" % tag)
-            if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'repeatForever' or selection == 'end repeat'):
+            if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'repeatForever' or selection == 'endRepeat'):
                 self.blockTable[tag] = selection
                 self.writeBlockTable()
             else:
@@ -482,7 +482,7 @@ class MyHandler(WebSocket):
             self.send(message.data, message.is_binary)
 
 def main():
-    server = make_server('', 9019, server_class=WSGIServer,
+    server = make_server('', 9020, server_class=WSGIServer,
             handler_class=WebSocketWSGIRequestHandler,
             app=WebSocketWSGIApplication(handler_cls=MyHandler))
     
@@ -497,7 +497,7 @@ def main():
 
         if(command == 'connect'):
             
-            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-7",-1)
+            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-9",-1)
             global readFunction
             readFunction = myBoard.readBlocks
 
