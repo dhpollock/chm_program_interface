@@ -457,7 +457,7 @@ def main():
         command = raw_input("Command: ")
 
         if(command == 'connect'):
-            myBoard = TangibleBoard("/dev/tty.usbserial-12345678", "/dev/tty.usbserial-4",-1)
+            myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
 
         elif(command == 'reconnect'):
             try:
