@@ -465,7 +465,7 @@ def main():
     time.sleep(.5)
 
     while True:
-        input_state = GPIO.input(18)
+        input_state = GPIO.input(4)
         if input_state == False:
             print('Button Pressed')
             myBoard.boardBeep()
