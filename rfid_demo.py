@@ -334,15 +334,15 @@ class TangibleBoard:
         self.myQueues = []
 
         if(unitOneComPort != -1):
-            self.unitOne = RFIDUnit(unitOneComPort,4)
+            self.unitOne = RFIDUnit(unitOneComPort,8)
             self.units.append(self.unitOne)
             self.myQueues.append(self.tag1)
         if(unitTwoComPort != -1):
-            self.unitTwo = RFIDUnit(unitTwoComPort,4)
+            self.unitTwo = RFIDUnit(unitTwoComPort,8)
             self.units.append(self.unitTwo)
             self.myQueues.append(self.tag2)
         if(unitThreeComPort != -1):
-            self.unitThree = RFIDUnit(unitThreeComPort)
+            self.unitThree = RFIDUnit(unitThreeComPort,8)
             self.units.append(self.unitThree)
             self.myQueues.append(self.tag3)
 
