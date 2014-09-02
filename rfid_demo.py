@@ -14,6 +14,7 @@ import time;
 from multiprocessing import Process, Queue
 import threading
 import random
+import RPi.GPIO as GPIO
 
 class RFIDUnit:
 
@@ -452,12 +453,24 @@ class TangibleBoard:
 
 def main():
 
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+
     myBoard = None;
     myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
     time.sleep(.5)
     myBoard.boardBeep()
 
     time.sleep(.5)
+
+    while True:
+        input_state = GPIO.input(18)
+        if input_state == False:
+            print('Button Pressed')
+            myBoard.boardBeep()
+            time.sleep(0.8)
+
     myBoard.close()
 
     # while(True):
