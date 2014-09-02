@@ -193,7 +193,7 @@ class RFIDUnit:
         # print("end")
         # self.ser.timeout = 1
         s =self.ser.read(self.ser.inWaiting())
-        print(s)
+        # print(s)
 ##        print(s)
         split = s.split('\r\n')
 
@@ -468,7 +468,7 @@ def main():
         input_state = GPIO.input(4)
         if input_state == False:
             print('Button Pressed')
-            myBoard.boardBeep()
+            myBoard.readTags(1)
             time.sleep(0.8)
 
     myBoard.close()
