@@ -457,6 +457,9 @@ def main():
     time.sleep(.5)
     myBoard.boardBeep()
 
+    time.sleep(.5)
+    myBoard.close()
+
     # while(True):
     #     command = raw_input("Command: ")
 
