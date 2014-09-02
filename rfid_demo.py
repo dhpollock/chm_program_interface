@@ -324,7 +324,7 @@ class TangibleBoard:
 
         self.units = []
 
-        self.loadBlockTable(self.blockTableFile, self.blockTable)
+        # self.loadBlockTable(self.blockTableFile, self.blockTable)
 
         self.tag1 = Queue()
         self.tag2 = Queue()
