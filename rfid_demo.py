@@ -453,53 +453,57 @@ class TangibleBoard:
 def main():
 
     myBoard = None;
-    while(True):
-        command = raw_input("Command: ")
+    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
+    time.sleep(.5)
+    myBoard.boardBeep()
 
-        if(command == 'connect'):
-            myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
+    # while(True):
+    #     command = raw_input("Command: ")
 
-        elif(command == 'reconnect'):
-            try:
-                myBoard.reconnect()
-            except:
-                print("Error, try connecting to board first")
+    #     if(command == 'connect'):
+    #         myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
 
-        elif(command == 'beep'):
-            try:
-                myBoard.boardBeep()
-            except:
-                print("Error, try connecting to board first")
-        elif(command == 'read'):
-            try:
-                myBoard.readTags(1)
-            except:
-                print("Error, try connecting to board first")
-        elif(command == 'read50'):
-            try:
-                myBoard.readTags(50)
-            except:
-                print("Error, try connecting to board first")
+    #     elif(command == 'reconnect'):
+    #         try:
+    #             myBoard.reconnect()
+    #         except:
+    #             print("Error, try connecting to board first")
 
-        elif(command == 'add block'):
-            try:
-                myBoard.addBlock()
-            except:
-                print("Error, try connecting to board first")
-        elif(command == 'read blocks'):
-            try:
-                myBoard.readBlocks(1)
-            except:
-                print("Error, try connecting to board first")
+    #     elif(command == 'beep'):
+    #         try:
+    #             myBoard.boardBeep()
+    #         except:
+    #             print("Error, try connecting to board first")
+    #     elif(command == 'read'):
+    #         try:
+    #             myBoard.readTags(1)
+    #         except:
+    #             print("Error, try connecting to board first")
+    #     elif(command == 'read50'):
+    #         try:
+    #             myBoard.readTags(50)
+    #         except:
+    #             print("Error, try connecting to board first")
+
+    #     elif(command == 'add block'):
+    #         try:
+    #             myBoard.addBlock()
+    #         except:
+    #             print("Error, try connecting to board first")
+    #     elif(command == 'read blocks'):
+    #         try:
+    #             myBoard.readBlocks(1)
+    #         except:
+    #             print("Error, try connecting to board first")
 
 
-        elif(command == 'exit'):
-            try:
-                myBoard.close()
-                break
-            except:
-                print("Error, try connecting to board first")
-                break
+    #     elif(command == 'exit'):
+    #         try:
+    #             myBoard.close()
+    #             break
+    #         except:
+    #             print("Error, try connecting to board first")
+    #             break
 
 
 
