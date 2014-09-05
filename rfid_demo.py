@@ -458,7 +458,7 @@ def main():
 
 
     myBoard = None;
-    myBoard = TangibleBoard("/dev/ttyUSB0", -1,-1)
+    myBoard = TangibleBoard("/dev/ttyUSB1", "/dev/ttyUSB0",-1)
     time.sleep(.5)
     myBoard.boardBeep()
 
