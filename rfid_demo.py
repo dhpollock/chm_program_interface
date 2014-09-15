@@ -464,7 +464,7 @@ def main():
     GPIO.output(4, GPIO.HIGH)
 
     myBoard = None;
-    myBoard = TangibleBoard("/dev/ttyUSB1", "/dev/ttyUSB0",-1)
+    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
     time.sleep(.5)
     myBoard.boardBeep()
 
