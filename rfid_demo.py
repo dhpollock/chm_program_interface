@@ -347,12 +347,8 @@ class TangibleBoard:
             self.myQueues.append(self.tag3)
         
         if(unitOutput != -1):
-            self.ser = serial.Serial()
-            self.comPort = unitOutput
             try:
-##              self.ser = serial.Serial(int(comPort))  # open first serial port
-                self.ser.baudrate = 115200
-                self.ser.port = comPort
+                self.ser = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=3.0)
                 if(self.ser.isOpen()):
                     self.ser.close()
                 self.ser.open()
