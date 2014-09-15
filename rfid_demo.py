@@ -461,7 +461,7 @@ def main():
 
     GPIO.output(2, GPIO.HIGH)
     GPIO.output(3, GPIO.LOW)
-    GPIO.output(4, GPIO.LOW)
+    GPIO.output(4, GPIO.HIGH)
 
     myBoard = None;
     myBoard = TangibleBoard("/dev/ttyUSB1", "/dev/ttyUSB0",-1)
@@ -474,8 +474,12 @@ def main():
         input_state = GPIO.input(17)
         if input_state == False:
             print('Button Pressed')
+            GPIO.output(2, GPIO.LOW)
+            GPIO.output(3, GPIO.HIGH)
             myBoard.readTags(1)
             time.sleep(0.8)
+            GPIO.output(2, GPIO.HIGH)
+            GPIO.output(3, GPIO.LOW)
 
     myBoard.close()
 
