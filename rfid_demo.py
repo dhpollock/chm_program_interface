@@ -483,7 +483,7 @@ def main():
     while True:
         input_state = GPIO.input(17)
         if input_state == False:
-            print('Button Pressed')
+            ##print('Button Pressed')
             GPIO.output(2, GPIO.LOW)
             GPIO.output(3, GPIO.HIGH)
             myBoard.readTags(1)
