@@ -313,7 +313,7 @@ class TangibleBoard:
 
 
 
-    def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort):
+    def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort, unitOutput):
 
         self.blockTableFile =  'blockTableData.csv'
 
@@ -345,6 +345,19 @@ class TangibleBoard:
             self.unitThree = RFIDUnit(unitThreeComPort,8)
             self.units.append(self.unitThree)
             self.myQueues.append(self.tag3)
+        
+        if(unitOutput != -1):
+            self.ser = serial.Serial()
+            self.comPort = unitOutput
+            try:
+##              self.ser = serial.Serial(int(comPort))  # open first serial port
+                self.ser.baudrate = 115200
+                self.ser.port = comPort
+                if(self.ser.isOpen()):
+                    self.ser.close()
+                self.ser.open()
+                self.ser.flushInput()
+                self.ser.flushOutput()
 
 
     def boardBeep(self):
@@ -430,7 +443,7 @@ class TangibleBoard:
                     blocks.append("empty")
                 j = j+1
 
-            print(blocks)
+            self.ser.write(blocks)
             i = i+1
 
 
@@ -464,7 +477,7 @@ def main():
     GPIO.output(4, GPIO.HIGH)
 
     myBoard = None;
-    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1)
+    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1, '/dev/ttyAMA0')
     time.sleep(.5)
     myBoard.boardBeep()
 
