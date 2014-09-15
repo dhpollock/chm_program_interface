@@ -358,7 +358,8 @@ class TangibleBoard:
                 self.ser.open()
                 self.ser.flushInput()
                 self.ser.flushOutput()
-
+            except:
+                print("oops")
 
     def boardBeep(self):
         for unit in self.units:
