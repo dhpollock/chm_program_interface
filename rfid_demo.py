@@ -454,8 +454,14 @@ class TangibleBoard:
 def main():
 
     GPIO.setmode(GPIO.BCM)
+    GPIO.setup(2, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(3, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(4, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+    GPIO.output(2, GPIO.HIGH)
+    GPIO.output(3, GPIO.LOW)
+    GPIO.output(4, GPIO.LOW)
 
     myBoard = None;
     myBoard = TangibleBoard("/dev/ttyUSB1", "/dev/ttyUSB0",-1)
@@ -465,7 +471,7 @@ def main():
     time.sleep(.5)
 
     while True:
-        input_state = GPIO.input(4)
+        input_state = GPIO.input(17)
         if input_state == False:
             print('Button Pressed')
             myBoard.readTags(1)
