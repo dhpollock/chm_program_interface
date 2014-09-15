@@ -375,7 +375,7 @@ class TangibleBoard:
             tempTags = []
             for queue in self.myQueues:
                 tempTags += queue.get()
-            self.ser.write(tempTags)
+            self.ser.write(''.join(tempTags))
             self.ser.write("\n")
             i = i+1
 
