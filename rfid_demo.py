@@ -348,12 +348,12 @@ class TangibleBoard:
         
         if(unitOutput != -1):
             try:
-                self.ser = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=3.0)
-                if(self.ser.isOpen()):
-                    self.ser.close()
-                self.ser.open()
-                self.ser.flushInput()
-                self.ser.flushOutput()
+                self.serOutput = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=3.0)
+                if(self.serOutput.isOpen()):
+                    self.serOutput.close()
+                self.serOutput.open()
+                self.serOutput.flushInput()
+                self.serOutput.flushOutput()
             except:
                 print("oops")
 
@@ -375,8 +375,8 @@ class TangibleBoard:
             tempTags = []
             for queue in self.myQueues:
                 tempTags += queue.get()
-            self.ser.write(''.join(tempTags))
-            self.ser.write("\n")
+            self.serOutput.write(''.join(tempTags))
+            self.serOutput.write("\n")
             i = i+1
 
 
@@ -440,7 +440,7 @@ class TangibleBoard:
                     blocks.append("empty")
                 j = j+1
 
-            self.ser.write(blocks)
+            self.serOutput.write(blocks)
             i = i+1
 
 
