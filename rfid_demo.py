@@ -319,6 +319,7 @@ class TangibleBoard:
     def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort, serialOutput):
 
         self.blockTableFile =  'blockTableData.csv'
+        self.serialOutput = serialOutput
 
         self.unitOne = -1
         self.unitTwo = -1
@@ -364,7 +365,6 @@ class TangibleBoard:
 
             for i in range(len(self.units)):
                 self.units[i].readAllThreaded(self.myQueues[i])
-
             
             tempTags = []
             for queue in self.myQueues:
@@ -376,7 +376,6 @@ class TangibleBoard:
                 print(tempTags)
                 print("\n")
             i = i+1
-
 
 
     def close(self):
