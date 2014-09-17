@@ -15,6 +15,9 @@ from multiprocessing import Process, Queue
 import threading
 import random
 import RPi.GPIO as GPIO
+import socket
+import fcntl
+import struct
 
 class RFIDUnit:
 
@@ -313,7 +316,7 @@ class TangibleBoard:
 
 
 
-    def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort, unitOutput):
+    def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort, serialOutput):
 
         self.blockTableFile =  'blockTableData.csv'
 
@@ -346,16 +349,7 @@ class TangibleBoard:
             self.units.append(self.unitThree)
             self.myQueues.append(self.tag3)
         
-        if(unitOutput != -1):
-            try:
-                self.serOutput = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=3.0)
-                if(self.serOutput.isOpen()):
-                    self.serOutput.close()
-                self.serOutput.open()
-                self.serOutput.flushInput()
-                self.serOutput.flushOutput()
-            except:
-                print("oops")
+
 
     def boardBeep(self):
         for unit in self.units:
@@ -375,8 +369,12 @@ class TangibleBoard:
             tempTags = []
             for queue in self.myQueues:
                 tempTags += queue.get()
-            self.serOutput.write(''.join(tempTags))
-            self.serOutput.write("\n")
+            if(serialOutput != -1):
+                serialOutput.write(''.join(tempTags))
+                serialOutput.write("\n")
+            else:
+                print(tempTags)
+                print("\n")
             i = i+1
 
 
@@ -440,7 +438,10 @@ class TangibleBoard:
                     blocks.append("empty")
                 j = j+1
 
-            self.serOutput.write(blocks)
+            if(serialOutput != -1):
+                serialOutput.write(blocks)
+            else:
+                print(blocks)
             i = i+1
 
 
@@ -461,7 +462,30 @@ class TangibleBoard:
             entry = line.split(',')
             myTable[entry[0]] = entry[1]
 
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
+
 def main():
+
+    ##setup external serial
+    try:
+        serOutput = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=3.0)
+        if(serOutput.isOpen()):
+            serOutput.close()
+        serOutput.open()
+        serOutput.flushInput()
+        serOutput.flushOutput()
+    except:
+        print("unable to connect to main serial port, oops")
+
+    serOutput.write("My IP address is:")
+    serOutput.write(get_ip_address('wlan0'))
+    time.sleep(.5)
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(2, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
@@ -474,7 +498,7 @@ def main():
     GPIO.output(4, GPIO.HIGH)
 
     myBoard = None;
-    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1, '/dev/ttyAMA0')
+    myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1, serOutput)
     time.sleep(.5)
     myBoard.boardBeep()
 
