@@ -369,7 +369,7 @@ class TangibleBoard:
             tempTags = []
             for queue in self.myQueues:
                 tempTags += queue.get()
-            if(serialOutput != -1):
+            if(self.serialOutput != -1):
                 self.serialOutput.write(''.join(tempTags))
                 self.serialOutput.write("\n")
             else:
@@ -437,7 +437,7 @@ class TangibleBoard:
                     blocks.append("empty")
                 j = j+1
 
-            if(serialOutput != -1):
+            if(self.serialOutput != -1):
                 self.serialOutput.write(blocks)
             else:
                 print(blocks)
