@@ -485,7 +485,8 @@ def main():
 
     serOutput.write("My IP address is:")
     serOutput.write(get_ip_address('wlan0'))
-    time.sleep(.5)
+    print(get_ip_address('wlan0'))
+    time.sleep(.5) 
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(2, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
