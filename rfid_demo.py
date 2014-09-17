@@ -490,7 +490,7 @@ def main():
     try:
         serOutput.write(get_ip_address('wlan0'))
         print(get_ip_address('wlan0'))
-    except
+    except:
         serialOutput.write("Unable to find wlan IP \n")
         print("Unable to find wlan IP \n")
     time.sleep(.5) 
