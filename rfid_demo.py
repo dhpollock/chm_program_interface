@@ -481,10 +481,18 @@ def main():
         serOutput.flushOutput()
     except:
         print("unable to connect to main serial port, oops")
-
+    time.sleep(5)
     serOutput.write("My IP address is:")
-    serOutput.write(get_ip_address('wlan0'))
-    print(get_ip_address('wlan0'))
+    time.sleep(2)
+    serOutput.write("...")
+    time.sleep(2)
+    serOutput.write("...")
+    try:
+        serOutput.write(get_ip_address('wlan0'))
+        print(get_ip_address('wlan0'))
+    except
+        serialOutput.write("Unable to find wlan IP \n")
+        print("Unable to find wlan IP \n")
     time.sleep(.5) 
 
     GPIO.setmode(GPIO.BCM)
