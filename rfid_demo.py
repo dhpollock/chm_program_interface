@@ -370,11 +370,11 @@ class TangibleBoard:
             for queue in self.myQueues:
                 tempTags += queue.get()
             if(self.serialOutput != -1):
-                self.serialOutput.write(''.join(tempTags))
+                self.serialOutput.write(' '.join(tempTags))
                 self.serialOutput.write("\n")
             else:
                 print(tempTags)
-                print("\n")
+                # print("\n")
             i = i+1
 
 
@@ -461,6 +461,8 @@ class TangibleBoard:
             entry = line.split(',')
             myTable[entry[0]] = entry[1]
 
+##get_ip_address copied from:
+##http://raspberrypi.stackexchange.com/questions/6714/how-to-get-the-raspberry-pis-ip-address-for-ssh
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(
@@ -481,12 +483,16 @@ def main():
         serOutput.flushOutput()
     except:
         print("unable to connect to main serial port, oops")
+    
+    ##Get IP Address just in case needed for SSHing
     time.sleep(5)
     serOutput.write("My IP address is:")
     time.sleep(2)
     serOutput.write("...")
     time.sleep(2)
     serOutput.write("...")
+    
+
     try:
         serOutput.write(get_ip_address('wlan0'))
         print(get_ip_address('wlan0'))
@@ -494,6 +500,8 @@ def main():
         serialOutput.write("Unable to find wlan IP \n")
         print("Unable to find wlan IP \n")
     time.sleep(.5) 
+
+    ##Setup GPIO pins for LEDs and pushbutton
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(2, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
@@ -504,6 +512,8 @@ def main():
     GPIO.output(2, GPIO.HIGH)
     GPIO.output(3, GPIO.LOW)
     GPIO.output(4, GPIO.HIGH)
+
+    ##Setup the rfid boards and beep to confirm connectivity
 
     myBoard = None;
     myBoard = TangibleBoard("/dev/ttyUSB0", "/dev/ttyUSB1",-1, serOutput)
