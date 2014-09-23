@@ -154,12 +154,14 @@ class RFIDUnit:
 ##        return self.tags
         if(errorCounter == len(self.tags)):
             if(self.resetCounter > 3):
+                self.resetCounter = 0
                 q.put(self.tags)
             else:
                 self.resetCounter = self.resetCounter +1
                 self.reconnect()
                 self.readAll(q)
         else:
+            self.resetCounter = 0
             q.put(self.tags)
 
 
