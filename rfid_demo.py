@@ -158,7 +158,7 @@ class RFIDUnit:
             else:
                 self.resetCounter = self.resetCounter +1
                 self.reconnect()
-                readAll(q)
+                self.readAll(q)
         else:
             q.put(self.tags)
 
