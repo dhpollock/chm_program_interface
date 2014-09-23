@@ -392,7 +392,7 @@ class TangibleBoard:
                 tempTags += queue.get()
             if(self.serialOutput != -1):
                 self.serialOutput.write(' '.join(tempTags))
-                self.serialOutput.write("\n")
+                # self.serialOutput.write("\n")
             else:
                 print(tempTags)
                 # print("\n")
