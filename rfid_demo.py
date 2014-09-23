@@ -23,6 +23,8 @@ class RFIDUnit:
 
 
     def __init__(self, comPort, antennaNum):
+        self.tagReadErrorCount = 0
+        self.resetCounter = 0
         self.ser = serial.Serial()
         self.tags = []
         self.tags = [0] * antennaNum
@@ -143,11 +145,22 @@ class RFIDUnit:
 
     def readAll(self, q):
 ##        self.readTagID(1)
+        errorCounter = 0
         for i in range(len(self.tags)):
             self.tags[i] = self.readTagID(i)
+            if(self.tags[i] == "TagReadErrorTimeout"):
+                errorCounter = errorCounter+1
 
 ##        return self.tags
-        q.put(self.tags)
+        if(errorCounter == len(self.tags)):
+            if(self.resetCounter > 3):
+                q.put(self.tags)
+            else:
+                self.resetCounter = self.resetCounter +1
+                self.reconnect()
+                readAll(q)
+        else:
+            q.put(self.tags)
 
 
 
@@ -227,12 +240,18 @@ class RFIDUnit:
         self.ser.flushInput()
         self.ser.flushOutput()
         if(error):
-            self.reconnect()
-            time.sleep(.05)
-            self.reset()
-            time.sleep(.05)
-            return self.readTagID(tagIndex)
+            if(self.tagReadErrorCount > 3):
+                self.tagReadErrorCount = 0
+                return "TagReadErrorTimeout"
+            else:
+                self.tagReadErrorCount = self.tagReadErrorCount + 1
+                # self.reconnect()
+                # time.sleep(.05)
+                self.reset()
+                time.sleep(.05)
+                return self.readTagID(tagIndex)
         else:
+            self.tagReadErrorCount = 0
             return id
 
     def activateRelay(self,num):
@@ -318,7 +337,7 @@ class TangibleBoard:
 
     def __init__(self, unitOneComPort, unitTwoComPort, unitThreeComPort, serialOutput):
 
-        self.blockTableFile =  'blockTableData.csv'
+        # self.blockTableFile =  'blockTableData.csv'
         self.serialOutput = serialOutput
 
         self.unitOne = -1
@@ -387,79 +406,79 @@ class TangibleBoard:
             unit.reconnect()
 
 
-    def addBlock(self):
-        tag = self.unitOne.readTagID(0)
-        if(len(tag) < 16):
-            print("Error: Write slot empty, unable to add block to table")
-            return
-        else:
-            tag = tag[:16]
-            print("Select Type of Block to Add:")
-            print("-- hop")
-            print("-- chirp")
-            print("-- eat")
-            print("-- left")
-            print("-- right")
-            print("-- spin")
-            print("-- hatch")
-            print("-- if")
-            print("-- else")
-            print("-- end if else")
-            print("-- repeat")
-            print("-- end repeat")
-            selection = raw_input("Type Selection for Block %s" % tag)
-            if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'end repeat'):
-                self.blockTable[tag] = selection
-                self.writeBlockTable()
-            else:
-                print("Error: Invalid Block Type Selection")
+    # def addBlock(self):
+    #     tag = self.unitOne.readTagID(0)
+    #     if(len(tag) < 16):
+    #         print("Error: Write slot empty, unable to add block to table")
+    #         return
+    #     else:
+    #         tag = tag[:16]
+    #         print("Select Type of Block to Add:")
+    #         print("-- hop")
+    #         print("-- chirp")
+    #         print("-- eat")
+    #         print("-- left")
+    #         print("-- right")
+    #         print("-- spin")
+    #         print("-- hatch")
+    #         print("-- if")
+    #         print("-- else")
+    #         print("-- end if else")
+    #         print("-- repeat")
+    #         print("-- end repeat")
+    #         selection = raw_input("Type Selection for Block %s" % tag)
+    #         if(selection == 'hop' or selection == 'chirp' or selection == 'eat' or selection == 'left' or selection == 'right' or selection == 'spin' or selection == 'hatch' or selection == 'if' or selection == 'else' or selection == 'end if else' or selection == 'repeat' or selection == 'end repeat'):
+    #             self.blockTable[tag] = selection
+    #             self.writeBlockTable()
+    #         else:
+    #             print("Error: Invalid Block Type Selection")
 
-    def readBlocks(self,num):
-        i = 0
-        while(i<num):
-            for i in range(len(self.units)):
-                self.units[i].readAllThreaded(self.myQueues[i])
+    # def readBlocks(self,num):
+    #     i = 0
+    #     while(i<num):
+    #         for i in range(len(self.units)):
+    #             self.units[i].readAllThreaded(self.myQueues[i])
 
-            tags = []
-            for queue in self.myQueues:
-                tags += queue.get()
+    #         tags = []
+    #         for queue in self.myQueues:
+    #             tags += queue.get()
 
-            blocks =[]
-            j = 0
-            for tag in tags:
-                if(len(tag) > 15):
-                    tagTemp = tag[:16]
-                    if(self.blockTable.has_key(tagTemp)):
-                        blocks.append(str(self.blockTable[tagTemp]))
-                    else:
-                        blocks.append("noType")
-                else:
-                    blocks.append("empty")
-                j = j+1
+    #         blocks =[]
+    #         j = 0
+    #         for tag in tags:
+    #             if(len(tag) > 15):
+    #                 tagTemp = tag[:16]
+    #                 if(self.blockTable.has_key(tagTemp)):
+    #                     blocks.append(str(self.blockTable[tagTemp]))
+    #                 else:
+    #                     blocks.append("noType")
+    #             else:
+    #                 blocks.append("empty")
+    #             j = j+1
 
-            if(self.serialOutput != -1):
-                self.serialOutput.write(blocks)
-            else:
-                print(blocks)
-            i = i+1
+    #         if(self.serialOutput != -1):
+    #             self.serialOutput.write(blocks)
+    #         else:
+    #             print(blocks)
+    #         i = i+1
 
 
 
-    def writeBlockTable(self):
-        with open(self.blockTableFile, "w") as myFile:
-            for (key,value) in self.blockTable.items():
-                    myFile.write('%s,%s\n' %(key,value))
-            myFile.close()
+    # def writeBlockTable(self):
+    #     with open(self.blockTableFile, "w") as myFile:
+    #         for (key,value) in self.blockTable.items():
+    #                 myFile.write('%s,%s\n' %(key,value))
+    #         myFile.close()
 
-    def loadBlockTable(self, myFileName, myTable):
-        myFile = open(myFileName, 'r')
+    # def loadBlockTable(self, myFileName, myTable):
+    #     myFile = open(myFileName, 'r')
 
-        entries = myFile.read().splitlines()
-        myFile.close()
+    #     entries = myFile.read().splitlines()
+    #     myFile.close()
 
-        for line in entries:
-            entry = line.split(',')
-            myTable[entry[0]] = entry[1]
+    #     for line in entries:
+    #         entry = line.split(',')
+    #         myTable[entry[0]] = entry[1]
 
 ##get_ip_address copied from:
 ##http://raspberrypi.stackexchange.com/questions/6714/how-to-get-the-raspberry-pis-ip-address-for-ssh
