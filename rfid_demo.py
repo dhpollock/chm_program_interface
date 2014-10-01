@@ -54,24 +54,24 @@ class RFIDUnit:
             print("Not Connected")
 
     def reconnect(self):
-        if(self.ping() != 0):
-            try:
-                self.ser.flushInput()
-                self.ser.flushOutput()
-                self.ser.flush
-                self.ser.close()
-                time.sleep(.25)
-                self.ser.port = self.comPort
-                self.ser.baudrate = 115200
-                self.ser.open()
-                self.ser.flushInput()
-                self.ser.flushOutput()
-                if(self.ping() != 0):
-                    self.reconnect()
-            except serial.SerialException, e:
-                print(e)
-        else:
-            self.reset()
+        # if(self.ping() != 0):
+        try:
+            self.ser.flushInput()
+            self.ser.flushOutput()
+            self.ser.flush
+            self.ser.close()
+            time.sleep(.25)
+            self.ser.port = self.comPort
+            self.ser.baudrate = 115200
+            self.ser.open()
+            self.ser.flushInput()
+            self.ser.flushOutput()
+            # if(self.ping() != 0):
+            #     self.reconnect()
+        except serial.SerialException, e:
+            print(e)
+        # else:
+            # self.reset()
 
     def ping(self):
         self.ser.write("\x30".encode("utf-8"))
@@ -152,12 +152,12 @@ class RFIDUnit:
                 errorCounter = errorCounter+1
 
 ##        return self.tags
-        if(errorCounter == len(self.tags)):
-            if(self.resetCounter > 3):
+        if(errorCounter >= len(self.tags)):
+            if(self.resetCounter > 1):
                 self.resetCounter = 0
                 q.put(self.tags)
             else:
-                self.resetCounter = self.resetCounter +1
+                self.resetCounter = 0
                 self.reconnect()
                 self.readAll(q)
         else:
@@ -242,7 +242,7 @@ class RFIDUnit:
         self.ser.flushInput()
         self.ser.flushOutput()
         if(error):
-            if(self.tagReadErrorCount > 3):
+            if(self.tagReadErrorCount > 2):
                 self.tagReadErrorCount = 0
                 return "TagReadErrorTimeout"
             else:
@@ -491,6 +491,8 @@ def get_ip_address(ifname):
         0x8915,  # SIOCGIFADDR
         struct.pack('256s', ifname[:15])
     )[20:24])
+
+
 
 def main():
 
