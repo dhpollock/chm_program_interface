@@ -38,6 +38,9 @@ class MyHandler(WebSocket):
 
 		if(message.data == "hello?"):
 			self.send("hi", message.is_binary)
+
+		elif(message.data == "fake"):
+			self.send("hop, chirp, hop", message.is_binary)
             
 		else:
 			print(message.data)
@@ -46,7 +49,7 @@ class MyHandler(WebSocket):
 	def serialConnect(self):
 		connected = False
 		try:
-			MyHandler.serOutput = serial.Serial("/dev/cu.PL2303-00001014", baudrate=115200, timeout=3.0)
+			MyHandler.serOutput = serial.Serial("/dev/cu.PL2303-00002014", baudrate=115200, timeout=3.0)
 			if(MyHandler.serOutput.isOpen()):
 				MyHandler.serOutput.close()
 			MyHandler.serOutput.open()
@@ -96,8 +99,11 @@ def main():
 
 			if(command == 'exit'):
 				closer(server)
+			elif(command == 'fake'):
+				MyHandler.send("testsend")
 
 	except Exception as e:
+		print(e)
 		close(server)
 
 
